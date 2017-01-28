@@ -11,10 +11,11 @@ class LinkedList {
       if(this.length === 0){
         this._head = this._tail = new Node(data);
       } else {
-        this._head.next = new Node(data,this._head);
+        this._head.next = new Node(data, null, this._head);
         this._head = this._head.next;
       }
       this.length++;
+      return this;
     }
 
     head() {
@@ -49,19 +50,63 @@ class LinkedList {
         parent.next = elem;
       }
       this.length++;
+      return this;
     }
 
     isEmpty() {
       return this.length > 0 ? false : true;
     }
 
-    clear() {}
+    clear() {
+      this.length = 0;
+      this._head = null;
+      this._head.prev = null;
+      this._tail = null;
+      this._tail.next = null;
+    }
 
-    deleteAt(index) {}
+    deleteAt(index) {
+      if(index === 0){
+        this._tail = this._tail.next;
+      } else {
+        let elem;
+        while(index > 0) {
+          elem = elem.next;
+          index--;
+        }
+        elem.prev.next = elem.next;
+        elem.next.prev = elem.prev;
+      }
+      this.length--;
+      return this;
+    }
 
-    reverse() {}
+    reverse() {
+      let start = this._head;
+      let temp;
+      while(start !== null) {
+        temp = start.next;
+        start.next = start.prev;
+        start.prev = temp;
+        if(start.prev == null){
+          this._head = start;
+        }
+        start = start.prev;
+      }
+      return this;
+    }
 
-    indexOf(data) {}
+    indexOf(data) {
+      let temp = this._tail;
+      let index = 0;
+      while(temp.next !== null){
+        if(temp.data === data){
+          return index;
+        }
+        index++;
+      }
+      return -1;
+    }
 }
 
 module.exports = LinkedList;
