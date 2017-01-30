@@ -2,55 +2,69 @@ const Node = require('./node');
 
 class LinkedList {
     constructor() {
-      this.length = 0;
-      this._head = null;
-      this._tail = null;
+        this.length = 0;
+        this._head = null;
+        this._tail = null;
     }
 
     append(data) {
-      if(this.length === 0){
-        this._head = this._tail = new Node(data);
-      } else {
-        this._head.next = new Node(data, null, this._head);
-        this._head = this._head.next;
-      }
-      this.length++;
-      return this;
+        let node = new Node(data);
+        if(!this._head){
+            this._head = node;
+            this._tail = node;
+        }
+        else {
+            this._tail.next = node;
+            node.prev  = this._tail;
+            this._tail = node;
+        }
+         this.length++;
+         return this;
     }
 
     head() {
-      return this._head.data;
+        if(!this._head) {
+          return null;
+        }
+        return this._head.data;
     }
 
     tail() {
-      return this._tail.data;
+        if(!this._tail) {
+          return null;
+        }
+        return this._tail.data;
     }
 
     at(index) {
-      let temp = this._tail;
-      while(index > 0) {
-        temp = temp.next;
-        index--;
-      }
-      return temp.data;
+        if(index > this.length || index < 0) return false;
+        let current = this.findIndex(index);
+        return current.data;
     }
 
     insertAt(index, data) {
-      if(index === 0){
-        this._tail = new Node(data, null, this._tail);
-      } else {
-        let parent = this._tail;
-        while(index > 0) {
-          parent = parent.next;
-          index--;
+        if(index > this.length || index < 0) {
+          throw new Error("bad request");
         }
-        parent = parent.prev;
-        let elem = new Node(data, parent, parent.next);
-        parent.next.prev = elem;
-        parent.next = elem;
-      }
-      this.length++;
-      return this;
+        let node = new Node(data);
+        let current = this.findIndex(index);
+        if(!current) {
+            this.append(data);
+            return this;
+        }
+        else if(current === this._head) {
+            node.next = current;
+            current.prev = node;
+            this._head = node;
+        }
+        else {
+        node.prev = current.prev;
+        node.next = current;
+        current.prev.next = node;;
+        current.prev = node;
+        }
+        this.length++;
+        return this;
     }
 
     isEmpty() {
@@ -58,54 +72,73 @@ class LinkedList {
     }
 
     clear() {
-      this.length = 0;
-      this._head = null;
-      this._head.prev = null;
-      this._tail = null;
-      this._tail.next = null;
+        this.length = 0;
+        this._tail = null;
+        this._head = null;
+        return this;
     }
 
     deleteAt(index) {
-      if(index === 0){
-        this._tail = this._tail.next;
-      } else {
-        let elem;
-        while(index > 0) {
-          elem = elem.next;
-          index--;
+        if(index > this.length || index < 0) {
+          throw new Error("bad index");
         }
-        elem.prev.next = elem.next;
-        elem.next.prev = elem.prev;
-      }
-      this.length--;
-      return this;
+        let current = this.findIndex(index);
+        if(current === this._head) {
+            if(current.next) {
+              current.next.prev = null;
+            }
+            else {
+              this._tail = null;
+            }
+            this._head = current.next;
+        }
+        else if(current === this._tail) {
+            current.prev.next = null;
+            this._tail = current.prev;
+        }
+        else {
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
+        }
+        this.length --;
+        return this;
     }
 
     reverse() {
-      let start = this._head;
-      let temp;
-      while(start !== null) {
-        temp = start.next;
-        start.next = start.prev;
-        start.prev = temp;
-        if(start.prev == null){
-          this._head = start;
+        let current = this._tail;
+        while(current) {
+            let temp = current.prev;
+            current.prev = current.next;
+            current.next = temp;
+            current = temp;
         }
-        start = start.prev;
-      }
-      return this;
+        let temp = this._head;
+        this._head = this._tail;
+        this._tail = temp;
+        return this;
     }
 
     indexOf(data) {
-      let temp = this._tail;
-      let index = 0;
-      while(temp.next !== null){
-        if(temp.data === data){
-          return index;
+        let current = this._head;
+        let i = 0;
+        while(current) {
+            if(current.data === data) {
+              return i;
+            }
+            current = current.next;
+            i++;
         }
-        index++;
-      }
-      return -1;
+        return -1;
+    }
+
+    findIndex(index) {
+         let a = 0;
+         let current = this._head;
+         while(index!==a) {
+            current = current.next;
+            a++;
+        }
+        return current;
     }
 }
 
